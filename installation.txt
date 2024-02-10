@@ -1,0 +1,94 @@
+0) use this tool to help in using redux
+https://chromewebstore.google.com/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd
+
+1) npm i redux react-redux @reduxjs/toolkit
+2) create redux folder inside "src"
+3) create "store.js" file inside "redux" folder
+
+4) this is the basic code of "store.js" file
+############################################
+import { configureStore } from '@reduxjs/toolkit'
+
+export const store = configureStore({
+  reducer: {},
+})
+############################################
+
+5.1) import "store.js" file in "index.js" file
+5.2) import "Provider" from "react-redux"
+5.3) wrap "App" component with "Provider" and pass "store" as a prop
+here is the code
+############################################
+import { Provider } from 'react-redux'
+import { store } from './redux/store'
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('root')
+)
+############################################
+
+6) create "File.reducer.js" folder inside "redux" folder
+
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+
+export const GetPostes = createAsyncThunk("counter/GetPostes", async () => {
+  return await axios.get("https://jsonplaceholder.typicode.com/posts");
+});
+
+const initialState = {
+  value: 0,
+  profile: {},
+  loading: false,
+  error: null,
+  postes: [],
+};
+
+export const counterSlice = createSlice({
+  name: "counter",
+  initialState,
+  reducers: {
+    increment: (state) => {
+      state.value += 1;
+    },
+    decrement: (state) => {
+      state.value -= 1;
+    },
+    incrementByAmount: (state, action) => {
+      state.postes = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    // ####################### GetPostes #######################
+    builder
+      .addCase(GetPostes.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.postes = [];
+      })
+      .addCase(GetPostes.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.postes = action.payload.data;
+      })
+      .addCase(GetPostes.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        state.postes = [];
+      });
+    // ####################### GetPostes #######################
+  },
+});
+
+export const { increment, decrement, incrementByAmount } = counterSlice.actions;
+
+export default counterSlice.reducer;
+
+
+7) import "File.reducer.js" file in "store.js" file and add it to "reducer" object
+
+
+8) use "useSelector" and "useDispatch" hooks to use redux in any component
